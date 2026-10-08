@@ -11,3 +11,4 @@ backend/.print-agent/
 
 # Built Android app (made by mobile/scripts/build-apk.js)
 downloads/
+setup-log.txt

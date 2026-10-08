@@ -2,12 +2,42 @@
 
 Records how many boxes go to each medical shop through each transporter, one record per transporter per day.
 
+> **Installing on the shop computer?** Follow the step-by-step guide: **[INSTALL.md](INSTALL.md)**. No technical knowledge needed.
+>
+> The rest of this page is technical detail for whoever maintains the app.
+
 - `backend/`: FastAPI + SQLite (`backend/data.db`, created on first start)
 - `frontend/`: React + Vite
 
-## Quick start (Windows)
+## Setting up the shop PC (Windows 10/11, 64-bit)
 
-Double-click `start.bat`. On the first run it sets up Python and Node packages, then it builds the frontend, starts the server and opens http://localhost:8000. Close the window or press Ctrl+C to stop.
+This is the PC that runs the server and has the printers. It needs internet access during setup.
+
+1. Install **Git for Windows** from https://git-scm.com/download/win (all the default options are fine).
+2. Open **Command Prompt** and get the app (any folder works; avoid OneDrive folders):
+   ```bat
+   cd C:\
+   git clone https://github.com/subbu-h21/box-management.git BoxDispatch
+   ```
+3. Open `C:\BoxDispatch` and double-click **`setup.bat`**. Click **Yes** when Windows asks for administrator rights. It:
+   - installs **Python 3.12.10** and **Node.js 22.23.3 LTS** from python.org / nodejs.org if they're missing or too old (checksum-verified);
+   - installs the exact Python packages (`backend/requirements.txt`) and website packages (`frontend/package-lock.json`), then builds the website;
+   - downloads the Android app from the latest GitHub release into `downloads/`;
+   - opens port 8000 in Windows Firewall, and offers to mark the network **Private** (answer **Y** if it's the shop's own Wi-Fi/LAN, or phones can't connect);
+   - puts a **Box Dispatch** shortcut on the desktop.
+
+   It writes a log to `setup-log.txt`, and it's safe to run again.
+4. Double-click the **Box Dispatch** shortcut. Two windows open, the server and a minimized print agent, and the website opens at http://localhost:8000. **Keep both windows open while the shop is working.** Closing them stops the app.
+5. The first time, the website asks you to create the **admin account**.
+6. Microsoft Edge must be installed (it is on Windows 10/11); printing uses it.
+
+**Updating:** close the two Box Dispatch windows, then double-click **`update.bat`**. It downloads the latest version (`git pull`), re-installs the packages, rebuilds the website and fetches the latest Android app. Your data (`backend/data.db`) is kept.
+
+**Pinned versions:** Python 3.12.10, Node.js 22.23.3, and the exact package versions above. To change one, test it first, then update `scripts/setup.ps1` (version, URL and SHA-256) and the lock files.
+
+## Quick start (development PC)
+
+Double-click `start.bat`. If the packages aren't installed yet, it installs them using the Python and Node.js already on the PC. Then it builds the frontend, starts the server and opens http://localhost:8000. Close the window or press Ctrl+C to stop.
 
 ## First-time setup (manual)
 
@@ -17,7 +47,7 @@ python -m venv .venv
 .venv\Scripts\python -m pip install -r requirements.txt
 
 cd ../frontend
-npm install
+npm ci
 ```
 
 ### Dummy data (optional)
@@ -103,9 +133,12 @@ The stickers are pre-printed. Only the **medical shop's name** is printed, after
   cd mobile
   npm run build:apk        # -> downloads/box-dispatch.apk, served by the website
   ```
-  Before building an update, raise `version` and `android.versionCode` in `mobile/app.json`.
+  Before building an update, raise `version` and `android.versionCode` in `mobile/app.json`. To send the new APK to the shop PC, publish it as a GitHub release; `update.bat` there downloads it:
+  ```sh
+  gh release create v1.0.1 downloads/box-dispatch.apk downloads/box-dispatch.json --title "Box Dispatch 1.0.1"
+  ```
 - **Signing key:** `mobile/credentials/` holds the app's release signing key. **Back it up.** Phones only accept an update signed with the same key, so if it's lost, everyone has to uninstall and reinstall the app.
-- **Firewall:** phones must be able to reach port 8000 on the main PC.
+- **Firewall:** phones must be able to reach port 8000 on the main PC. `setup.bat` does both of these steps; to do them by hand:
   1. Mark the shop Wi-Fi as a **Private** network on the main PC: Settings → Network & internet → Wi-Fi (or Ethernet) → the network → **Private network**. Windows blocks incoming connections on Public networks.
   2. Allow the port once, in an admin PowerShell:
   ```powershell

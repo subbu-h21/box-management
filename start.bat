@@ -13,7 +13,7 @@ rem ---- Frontend: install packages on first run, then build ----
 if not exist "frontend\node_modules" (
     echo Installing frontend packages...
     pushd frontend
-    call npm install || (popd & goto :error)
+    call npm ci || (popd & goto :error)
     popd
 )
 echo Building frontend...
