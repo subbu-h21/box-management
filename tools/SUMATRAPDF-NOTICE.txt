@@ -1,0 +1,7 @@
+SumatraPDF.exe (version 3.6.1, 64-bit portable) is included unmodified so the print agent
+can print PDFs silently on Windows.
+
+SumatraPDF is free software by Krzysztof Kowalczyk and contributors, licensed under the
+GNU General Public License v3 (GPLv3).
+  Website / downloads: https://www.sumatrapdfreader.org/
+  Source code:         https://github.com/sumatrapdfreader/sumatrapdf

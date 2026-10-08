@@ -1,0 +1,13 @@
+node_modules/
+frontend/dist/
+backend/.venv/
+__pycache__/
+backend/data.db
+backend/data.db-wal
+backend/data.db-shm
+backend/agent_token.txt
+tools/SumatraPDF-settings.txt
+backend/.print-agent/
+
+# Built Android app (made by mobile/scripts/build-apk.js)
+downloads/
