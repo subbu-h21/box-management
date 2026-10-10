@@ -5,7 +5,7 @@ turns the page into an A4 PDF with Microsoft Edge (headless) and sends it to
 the printer with SumatraPDF, without any dialog. Uses only the standard library.
 
 Settings (environment variables, all optional):
-  BOX_SERVER           server address            (default http://127.0.0.1:8000)
+  BOX_SERVER           server address            (default http://127.0.0.1:8015)
   BOX_PRINTER          printer name, used when a job has no printer chosen on the website
                        (default: the Windows default printer)
   BOX_EDGE             path to msedge.exe        (default: found automatically)
@@ -24,7 +24,7 @@ from datetime import datetime
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SERVER = os.environ.get("BOX_SERVER", "http://127.0.0.1:8000").rstrip("/")
+SERVER = os.environ.get("BOX_SERVER", "http://127.0.0.1:8015").rstrip("/")
 TOKEN_FILE = HERE / "agent_token.txt"
 SUMATRA = Path(os.environ.get("BOX_SUMATRA") or HERE.parent / "tools" / "SumatraPDF.exe")
 PRINTER = os.environ.get("BOX_PRINTER", "").strip()

@@ -1385,7 +1385,7 @@ def _lan_addresses() -> list[str]:
 
 @app.get("/api/server-info")
 def server_info(request: Request):
-    port = request.url.port or 8000
+    port = request.url.port or 80
     return {"addresses": [f"{ip}:{port}" for ip in _lan_addresses()]}
 
 

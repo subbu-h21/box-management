@@ -1,5 +1,5 @@
 <#
-  Box Dispatch setup for the main PC (Windows 10/11, 64-bit). Run it via setup.bat (as administrator).
+  Box Dispatch setup for the main PC (Windows 10/11, 64-bit). Run it via setup.bat or update.bat (as administrator).
   Safe to run again: anything already in place is skipped. Your data (backend\data.db) is never touched.
 
   What it does:
@@ -7,7 +7,7 @@
     2. Creates backend\.venv and installs the exact Python packages (backend\requirements.txt)
     3. Installs the exact website packages (frontend\package-lock.json) and builds the website
     4. Downloads the Android app (APK) from the latest GitHub release
-    5. Opens port 8000 in Windows Firewall for phones/PCs on the shop network
+    5. Opens port 8015 in Windows Firewall for phones/PCs on the shop network
     6. Puts a "Box Dispatch" shortcut on the desktop
 
   -NoSystemChanges : only steps 2-4 (no installers, firewall or shortcut; no admin needed)
@@ -31,7 +31,7 @@ $NodeVersion = '22.23.3'  # Node.js 22 LTS ("Jod")
 $NodeUrl    = "https://nodejs.org/dist/v$NodeVersion/node-v$NodeVersion-x64.msi"
 $NodeSha256 = '1C0EFC8449987E7DA5D184786A0A96DA83FFA11D334421201E5C09B93017CB8D'
 $Repo       = 'subbu-h21/box-management'
-$Port       = 8000
+$Port       = 8015   # must match PORT in start.bat
 
 function Step($text) { Write-Host ''; Write-Host "== $text" -ForegroundColor Cyan }
 function Ok($text) { Write-Host "   $text" -ForegroundColor Green }
@@ -190,17 +190,19 @@ if ($edge) { Ok 'Microsoft Edge found' } else { Warn 'Microsoft Edge not found: 
 if (-not $NoSystemChanges) {
   # ---- Firewall --------------------------------------------------------------------------------
   Step "Network access (port $Port)"
-  if (-not (Get-NetFirewallRule -DisplayName 'Box Dispatch' -ErrorAction SilentlyContinue)) {
-    New-NetFirewallRule -DisplayName 'Box Dispatch' -Direction Inbound -Protocol TCP -LocalPort $Port `
-      -Action Allow -Profile Private, Domain | Out-Null
-    Ok "Firewall: port $Port allowed on private networks"
-  } else { Ok 'Firewall rule already present' }
-  foreach ($net in (Get-NetConnectionProfile | Where-Object { $_.NetworkCategory -eq 'Public' })) {
-    Warn "The network '$($net.Name)' is set to Public: phones cannot connect to this PC on it."
-    $answer = Read-Host "   Is this the shop's own network? Set it to Private? (Y/N)"
-    if ($answer -match '^[Yy]') {
-      Set-NetConnectionProfile -InterfaceIndex $net.InterfaceIndex -NetworkCategory Private
-      Ok "'$($net.Name)' is now a Private network"
+  # The rule covers every network type (Public, Private, Domain), so the network's own Public/Private
+  # setting is left alone: other software on this PC may depend on it. Recreated each run so the port
+  # stays up to date.
+  Get-NetFirewallRule -DisplayName 'Box Dispatch' -ErrorAction SilentlyContinue | Remove-NetFirewallRule
+  New-NetFirewallRule -DisplayName 'Box Dispatch' -Direction Inbound -Protocol TCP -LocalPort $Port `
+    -Action Allow -Profile Any | Out-Null
+  Ok "Firewall: port $Port allowed for phones and computers on the shop network"
+  # Another program already using the port would stop Box Dispatch from starting.
+  foreach ($c in @(Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue)) {
+    $proc = Get-Process -Id $c.OwningProcess -ErrorAction SilentlyContinue
+    if ($proc -and $proc.ProcessName -ne 'python') {
+      Warn "Port $Port is already used by '$($proc.ProcessName)'. Box Dispatch cannot start until that program"
+      Warn "stops using it, or the port is changed (PORT in start.bat and `$Port in scripts\setup.ps1)."
     }
   }
 
@@ -220,6 +222,6 @@ if (-not $NoSystemChanges) {
 Step 'Done'
 $ips = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
   Where-Object { $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '169.254.*' } | Select-Object -ExpandProperty IPAddress
-Ok 'Start the app with the "Box Dispatch" desktop shortcut (or start.bat), then open http://localhost:8000'
+Ok "Start the app with the 'Box Dispatch' desktop shortcut (or start.bat), then open http://localhost:$Port"
 Ok 'The first time, the website asks you to create the admin account.'
 if ($ips) { Ok ("Phones on the shop Wi-Fi use: " + (($ips | ForEach-Object { "${_}:$Port" }) -join '  or  ')) }

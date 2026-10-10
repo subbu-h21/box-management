@@ -23,21 +23,21 @@ This is the PC that runs the server and has the printers. It needs internet acce
    - installs **Python 3.12.10** and **Node.js 22.23.3 LTS** from python.org / nodejs.org if they're missing or too old (checksum-verified);
    - installs the exact Python packages (`backend/requirements.txt`) and website packages (`frontend/package-lock.json`), then builds the website;
    - downloads the Android app from the latest GitHub release into `downloads/`;
-   - opens port 8000 in Windows Firewall, and offers to mark the network **Private** (answer **Y** if it's the shop's own Wi-Fi/LAN, or phones can't connect);
+   - opens port 8015 in Windows Firewall for every network type. It never changes the network's Public/Private setting, because other software on the PC may depend on it;
    - puts a **Box Dispatch** shortcut on the desktop.
 
    It writes a log to `setup-log.txt`, and it's safe to run again.
-4. Double-click the **Box Dispatch** shortcut. Two windows open, the server and a minimized print agent, and the website opens at http://localhost:8000. **Keep both windows open while the shop is working.** Closing them stops the app.
+4. Double-click the **Box Dispatch** shortcut. Two windows open, the server and a minimized print agent, and the website opens at http://localhost:8015. **Keep both windows open while the shop is working.** Closing them stops the app.
 5. The first time, the website asks you to create the **admin account**.
 6. Microsoft Edge must be installed (it is on Windows 10/11); printing uses it.
 
-**Updating:** close the two Box Dispatch windows, then double-click **`update.bat`**. It downloads the latest version (`git pull`), re-installs the packages, rebuilds the website and fetches the latest Android app. Your data (`backend/data.db`) is kept.
+**Updating:** close the two Box Dispatch windows, then double-click **`update.bat`** and click **Yes** for administrator rights. It downloads the latest version (`git pull`), then re-runs the whole setup: packages, website, Android app, firewall rule and shortcut. Your data (`backend/data.db`) is kept.
 
 **Pinned versions:** Python 3.12.10, Node.js 22.23.3, and the exact package versions above. To change one, test it first, then update `scripts/setup.ps1` (version, URL and SHA-256) and the lock files.
 
 ## Quick start (development PC)
 
-Double-click `start.bat`. If the packages aren't installed yet, it installs them using the Python and Node.js already on the PC. Then it builds the frontend, starts the server and opens http://localhost:8000. Close the window or press Ctrl+C to stop.
+Double-click `start.bat`. If the packages aren't installed yet, it installs them using the Python and Node.js already on the PC. Then it builds the frontend, starts the server and opens http://localhost:8015. Close the window or press Ctrl+C to stop.
 
 ## First-time setup (manual)
 
@@ -62,16 +62,18 @@ cd backend
 
 ```sh
 cd frontend && npm run build
-cd ../backend && .venv\Scripts\python -m uvicorn main:app --host 0.0.0.0 --port 8000
+cd ../backend && .venv\Scripts\python -m uvicorn main:app --host 0.0.0.0 --port 8015
 ```
 
-Open http://localhost:8000. Other PCs on the same network can use http://<this-pc-ip>:8000.
+Open http://localhost:8015. Other PCs on the same network can use http://<this-pc-ip>:8015.
+
+**Changing the port:** set `PORT` in `start.bat` and `$Port` in `scripts/setup.ps1` (and the port in `update.bat`'s running check), then run `setup.bat` again so the firewall rule follows.
 
 ## Run (development, with hot reload)
 
 ```sh
-cd backend && .venv\Scripts\python -m uvicorn main:app --reload --port 8000
-cd frontend && npm run dev     # http://localhost:5173, proxies /api to :8000
+cd backend && .venv\Scripts\python -m uvicorn main:app --reload --port 8015
+cd frontend && npm run dev     # http://localhost:5173, proxies /api to :8015
 ```
 
 ## Logins and roles
@@ -126,7 +128,7 @@ The stickers are pre-printed. Only the **medical shop's name** is printed, after
 
 `mobile/` is an Expo (React Native) app for workers and admins. It has the same features as the website, laid out for phones, except the sticker layout editor and sticker setup, which stay on the website. It talks to the server on the main PC over the shop Wi-Fi.
 
-- **Installing on phones:** on the website, click **Android app** (top bar, or "Get the Android app" on the login page). It offers the APK download, shows the **server address** to type into the app (e.g. `192.168.1.20:8000`), and has install steps.
+- **Installing on phones:** on the website, click **Android app** (top bar, or "Get the Android app" on the login page). It offers the APK download, shows the **server address** to type into the app (e.g. `192.168.1.20:8015`), and has install steps.
 - **Logging in:** the app asks for the server address, username and password. It remembers the server and stays logged in for 30 days (or until Log out). New workers can **Register** from the app.
 - **Building a new APK** (on this PC; needs Android SDK + Java 17):
   ```sh
@@ -138,11 +140,9 @@ The stickers are pre-printed. Only the **medical shop's name** is printed, after
   gh release create v1.0.1 downloads/box-dispatch.apk downloads/box-dispatch.json --title "Box Dispatch 1.0.1"
   ```
 - **Signing key:** `mobile/credentials/` holds the app's release signing key. **Back it up.** Phones only accept an update signed with the same key, so if it's lost, everyone has to uninstall and reinstall the app.
-- **Firewall:** phones must be able to reach port 8000 on the main PC. `setup.bat` does both of these steps; to do them by hand:
-  1. Mark the shop Wi-Fi as a **Private** network on the main PC: Settings → Network & internet → Wi-Fi (or Ethernet) → the network → **Private network**. Windows blocks incoming connections on Public networks.
-  2. Allow the port once, in an admin PowerShell:
+- **Firewall:** phones must be able to reach port 8015 on the main PC. `setup.bat` adds the rule. It applies to every network type, so the network's Public/Private setting can stay as it is. To add it by hand, in an admin PowerShell:
   ```powershell
-  New-NetFirewallRule -DisplayName "Box Dispatch" -Direction Inbound -Protocol TCP -LocalPort 8000 -Action Allow -Profile Private
+  New-NetFirewallRule -DisplayName "Box Dispatch" -Direction Inbound -Protocol TCP -LocalPort 8015 -Action Allow -Profile Any
   ```
 - **Building is heavy:** a first APK build takes about 10 minutes and a lot of memory. Close other big programs (and any Android emulator) while it runs. The build works in `C:\bdb\mobile`, a copy made because the Android C++ tools can't handle this project's long folder path.
 

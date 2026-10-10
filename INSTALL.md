@@ -36,9 +36,8 @@ This guide is for the **main computer in the shop**: the one that stays on durin
 3. Windows asks *"Do you want to allow this app to make changes to your device?"*: click **Yes**. A new black window opens and starts installing.
    - If a blue box says *"Windows protected your PC"*, click **More info**, then **Run anyway**.
 4. **Wait.** It downloads and installs everything it needs, which takes 5 to 20 minutes depending on the internet speed. Coloured lines show its progress.
-5. It may ask: *"Is this the shop's own network? Set it to Private? (Y/N)"*. If the computer is on the **shop's own Wi-Fi or cable network**, type **Y** and press **Enter**. Without this, phones can't connect.
-6. When it says **Setup finished**, find the line that says **"Phones on the shop Wi-Fi use:"** and **write down the address** shown, for example `192.168.1.20:8000`. Workers type this into the phone app.
-7. Press any key to close the window.
+5. When it says **Setup finished**, find the line that says **"Phones on the shop Wi-Fi use:"** and **write down the address** shown, for example `192.168.1.20:8015`. Workers type this into the phone app.
+6. Press any key to close the window.
 
 > **If it says SETUP FAILED:** check the internet connection and run **setup** again. It's safe to run as many times as needed. If it still fails, send the file **setup-log.txt** from the BoxDispatch folder to the person who supports the app.
 
@@ -68,7 +67,7 @@ A **Box Dispatch** icon is now on the desktop.
 
 The phone must be on the **shop's Wi-Fi**.
 
-1. On the phone, open **Chrome** and type the address you wrote down in Step 3, for example `192.168.1.20:8000`.
+1. On the phone, open **Chrome** and type the address you wrote down in Step 3, for example `192.168.1.20:8015`.
 2. Tap **Get the Android app**, then **Download**.
 3. Open the downloaded file. If the phone asks, allow **Install unknown apps** for Chrome, then tap **Install**.
 4. Open **Box Dispatch** on the phone. Enter:
@@ -84,7 +83,7 @@ The phone must be on the **shop's Wi-Fi**.
 ## Updating to a new version
 
 1. Close both Box Dispatch black windows.
-2. Open the **BoxDispatch** folder (C: drive) and double-click **update** (or **update.bat**).
+2. Open the **BoxDispatch** folder (C: drive) and double-click **update** (or **update.bat**). Click **Yes** when Windows asks for permission.
 3. Wait until it says **Update finished**, then press any key.
 4. Start Box Dispatch again from the desktop icon.
 
@@ -108,7 +107,7 @@ Also keep a safe copy of the **mobile\credentials** folder, if your support pers
 | Problem | What to do |
 |---|---|
 | The website says *"This site can't be reached"* | Box Dispatch isn't running. Double-click the desktop icon. |
-| Phones can't connect | Check that the main computer is on and the black windows are open, and the phone is on the shop Wi-Fi. Then check the address (see "Good to know" above). If it still fails, run **setup** again and answer **Y** to the Private network question. |
+| Phones can't connect | Check that the main computer is on and the black windows are open, and the phone is on the shop Wi-Fi. Then check the address (see "Good to know" above). If it still fails, run **setup** again: it repairs the firewall setting. |
 | Nothing prints | Open the **Printer** tab: it shows if the printer is offline or out of paper. Check that the small **print agent** window is open. |
 | Forgot a worker's password | The admin opens **Users** and resets it. |
 | Forgot the admin password | If there's a second admin, they can reset it. Otherwise contact your support person. |

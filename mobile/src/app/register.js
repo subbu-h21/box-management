@@ -56,7 +56,7 @@ export default function RegisterScreen() {
     <Screen>
       <Card>
         <Muted>Ask for an account. The admin must approve it before you can log in.</Muted>
-        <Field label="Server address" value={form.server} onChangeText={set('server')} placeholder="192.168.1.20:8000"
+        <Field label="Server address" value={form.server} onChangeText={set('server')} placeholder="192.168.1.20:8015"
           autoCapitalize="none" autoCorrect={false} keyboardType="url" />
         <Field label="Full name" value={form.full_name} onChangeText={set('full_name')} autoComplete="name" />
         <Field label="Phone number" value={form.phone} onChangeText={set('phone')} keyboardType="phone-pad" />

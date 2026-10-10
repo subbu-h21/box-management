@@ -23,7 +23,7 @@ export class ApiError extends Error {
   }
 }
 
-// "192.168.1.20:8000" -> "http://192.168.1.20:8000"
+// "192.168.1.20:8015" -> "http://192.168.1.20:8015"
 export function normalizeServerUrl(input) {
   let url = String(input || '').trim()
   if (!url) return ''

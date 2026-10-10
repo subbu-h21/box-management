@@ -43,10 +43,10 @@ export default function LoginScreen() {
         <Field
           testID="server"
           label="Server address"
-          hint="The main PC's address, shown on the website under “Android app”, e.g. 192.168.1.20:8000"
+          hint="The main PC's address, shown on the website under “Android app”, e.g. 192.168.1.20:8015"
           value={server}
           onChangeText={setServer}
-          placeholder="192.168.1.20:8000"
+          placeholder="192.168.1.20:8015"
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="url"
